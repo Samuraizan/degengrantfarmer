@@ -97,13 +97,16 @@ class FilterAgent:
             low_matches * 0.3
         )
         
-        # Normalize score (assuming max possible matches would be all keywords)
-        max_possible = (
-            len(self.keywords['high_priority']) * 2.0 +  # Double weight for high priority
-            len(self.keywords['medium_priority']) * 0.6 +
-            len(self.keywords['low_priority']) * 0.3
-        )
+        # Calculate maximum possible score based on the number of matches we found
+        # This prevents penalizing for keywords that aren't present
+        total_matches = high_matches + medium_matches + low_matches
+        if total_matches == 0:
+            return 0.0
         
+        # Maximum score if all matches were high priority
+        max_possible = total_matches * 2.0
+        
+        # Normalize score between 0 and 1
         return min(weighted_score / max_possible if max_possible > 0 else 0, 1.0)
     
     def _calculate_focus_match_score(self, grant_keywords: Set[str]) -> float:
