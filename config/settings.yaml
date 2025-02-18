@@ -1,0 +1,123 @@
+# Degen Grant Farmer Configuration
+
+# Scraper Agent Configuration
+scraper:
+  sources:
+    - id: grants_gov
+      type: api
+      url: https://www.grants.gov/grantsws/rest/opportunities/search/
+      update_frequency: daily
+      
+    - id: gitcoin
+      type: web
+      url: https://grants.gitcoin.co/
+      update_frequency: daily
+      
+  # How often to run the scraper (in minutes)
+  scrape_interval: 1440  # daily
+
+# Filter Agent Configuration
+filter:
+  # Keywords for relevance scoring
+  keywords:
+    high_priority:
+      - blockchain
+      - web3
+      - crypto
+      - ethereum
+      - defi
+      - smart contract
+    medium_priority:
+      - nft
+      - dao
+      - metaverse
+      - token
+      - wallet
+      - dapp
+    low_priority:
+      - technology
+      - software
+      - development
+      - research
+      - innovation
+  
+  # Focus areas for domain matching
+  focus_areas:
+    - blockchain
+    - defi
+    - web3
+    - ethereum
+    - nft
+    - dao
+  
+  # Weights for different scoring components
+  relevance_weights:
+    keywords: 0.4
+    focus: 0.3
+    org_match: 0.3
+  
+  # Scoring weights for final score
+  scoring_weights:
+    relevance: 0.4
+    amount: 0.2
+    urgency: 0.2
+    effort: 0.2
+    
+  # Minimum score required to consider a grant
+  min_score_threshold: 0.5
+  
+  # Grant amount thresholds
+  min_grant_amount: 5000
+  target_grant_amount: 50000
+  high_effort_amount_threshold: 100000
+  
+  # Deadline thresholds (in days)
+  min_days_to_deadline: 7
+  max_days_to_deadline: 90
+
+# Application Agent Configuration
+application:
+  # OpenAI configuration
+  openai_model: gpt-4
+  
+  # Minimum score required to generate an application
+  application_threshold: 0.7
+  
+  # Word limits for different sections
+  section_word_limits:
+    Executive Summary: 300
+    Project Description: 1000
+    Methodology: 800
+    Budget Narrative: 500
+    
+  # User/Organization Profile
+  user_profile:
+    organization_name: "Web3 Innovations"
+    organization_type: "startup"
+    mission_statement: "Building decentralized solutions for a more open and accessible financial future"
+    core_competencies:
+      - Blockchain Development
+      - Smart Contract Engineering
+      - DeFi Protocol Design
+      - Web3 Infrastructure
+    team_size: 12
+    previous_grants:
+      - name: "ETH Foundation Grant"
+        amount: 50000
+        year: 2023
+      - name: "Web3 Foundation Grant"
+        amount: 75000
+        year: 2023
+    
+# Logging Configuration
+logging:
+  level: INFO
+  file: data/logs/dgf.log
+  max_size: 10485760  # 10MB
+  backup_count: 5
+
+# Storage Configuration
+storage:
+  grants_file: data/raw/grants.json
+  filtered_grants_file: data/processed/filtered_grants.json
+  applications_dir: data/applications/ 
