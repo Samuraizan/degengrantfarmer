@@ -20,58 +20,6 @@ Scheduled Updates: Automated weekly scans for new grants.
 
 On-Chain & DAO Compatibility: Future integration with decentralized governance funding.
 
-🛠️ Tech Stack
-
-Component
-
-Technology
-
-Language
-
-Python 3.9+
-
-Scraping
-
-BeautifulSoup, Scrapy
-
-APIs & Automation
-
-Requests, Selenium
-
-Database
-
-SQLite / PostgreSQL / Google Sheets API
-
-AI Agents
-
-OpenAI API, LangChain, AutoGen
-
-Orchestration
-
-Prefect / Airflow
-
-Application Handling
-
-Google Forms API / Notion API
-
-📁 Repository Structure
-
-Degen-Grant-Farmer/
-│── agents/                   # AI agents for grant discovery & applications
-│   ├── scraper_agent.py       # Scrapes grant websites
-│   ├── filter_agent.py        # Categorizes and ranks grants
-│   ├── application_agent.py   # Auto-generates application responses
-│── data/                      # Storage for fetched and processed grant data
-│   ├── grants.json            # Raw scraped data
-│   ├── processed_grants.json  # Filtered & ranked grants
-│── docs/                      # Documentation and guides
-│── config/                    # Configuration settings (API keys, schedules)
-│── tests/                     # Unit tests for agents
-│── README.md                  # Project overview
-│── requirements.txt           # Dependencies list
-│── setup.py                   # Installable package setup
-│── .github/workflows/ci.yml   # GitHub Actions for automation
-
 🚀 Installation & Usage
 
 1️⃣ Clone the repository
@@ -97,15 +45,9 @@ python agents/application_agent.py
 
 📌 Automation & CI/CD
 
-GitHub Actions: Automates weekly scraping & sheet updates.
-
 Error Handling: Built-in retry logic for failed requests.
 
 Logging & Monitoring: Uses loguru for logging, with future support for ELK Stack.
-
-📖 Future Roadmap
-
-✔ Phase 1: Scraping & API integrations✔ Phase 2: Filtering and ranking system✔ Phase 3: AI-powered auto-filling of applications✔ Phase 4: Multi-agent collaboration for complete automation🚀 Phase 5: On-chain grant verification & smart contract submission
 
 📜 License
 
@@ -114,10 +56,4 @@ This project is open-source under the MIT License. Feel free to contribute!
 🔗 Links
 
 📑 Documentation: [Coming Soon]
-
-🛠️ Issues & Features: GitHub Issues
-
-🤝 Join the Community: Discord
-
-💰 Degen Grant Farmer: Because why write grant applications manually when you can let AI do it for you? 🚀
 
