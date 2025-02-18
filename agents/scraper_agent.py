@@ -238,8 +238,8 @@ class ScraperAgent:
             
             try:
                 with open(storage_path, 'w') as f:
-                    # Convert grants to dict for JSON serialization
-                    grants_data = [grant.dict() for grant in all_grants]
+                    # Convert grants to dict for JSON serialization using model_dump
+                    grants_data = [grant.model_dump() for grant in all_grants]
                     json.dump(grants_data, f, indent=2, default=str)
             except Exception as e:
                 self.logger.error(f"Error saving grants to file: {str(e)}")

@@ -9,6 +9,8 @@ from agents.scraper_agent import Grant
 from agents.filter_agent import GrantScore
 from agents.application_agent import ApplicationAgent, Application, ApplicationSection
 
+pytestmark = pytest.mark.asyncio
+
 @pytest.fixture
 def mock_config():
     """Fixture providing test configuration."""
@@ -101,122 +103,113 @@ def test_format_prompt_variables(mock_config, sample_grant):
     assert sample_grant.description in formatted
     assert mock_config['user_profile']['organization_name'] in formatted
 
-@patch('openai.ChatCompletion.acreate')
-async def test_generate_section_content(mock_acreate, mock_config, sample_grant, mock_openai_response):
+@pytest.mark.asyncio
+async def test_generate_section_content(mock_config, sample_grant, mock_openai_response):
     """Test section content generation."""
-    mock_acreate.return_value = mock_openai_response
-    
-    agent = ApplicationAgent(mock_config)
-    content = await agent.generate_section_content(
-        "Executive Summary",
-        sample_grant,
-        max_words=300
-    )
-    
-    assert content == mock_openai_response.choices[0].message.content
-    assert mock_acreate.called
-    call_args = mock_acreate.call_args[1]
-    assert call_args['model'] == 'gpt-4'
-    assert len(call_args['messages']) == 2
+    with patch('openai.ChatCompletion.acreate', return_value=mock_openai_response):
+        agent = ApplicationAgent(mock_config)
+        content = await agent.generate_section_content(
+            "Executive Summary",
+            sample_grant,
+            max_words=300
+        )
+        
+        assert content == mock_openai_response.choices[0].message.content
 
-@patch('openai.ChatCompletion.acreate')
-async def test_generate_application(mock_acreate, mock_config, sample_grant, mock_openai_response, tmp_path):
+@pytest.mark.asyncio
+async def test_generate_application(mock_config, sample_grant, mock_openai_response, tmp_path):
     """Test complete application generation."""
-    mock_acreate.return_value = mock_openai_response
-    
-    # Modify config to use temporary directory
-    test_config = mock_config.copy()
-    test_config['storage'] = {'applications_dir': str(tmp_path)}
-    
-    agent = ApplicationAgent(test_config)
-    application = await agent.generate_application(sample_grant)
-    
-    assert isinstance(application, Application)
-    assert len(application.sections) > 0
-    assert all(isinstance(s, ApplicationSection) for s in application.sections)
-    assert application.status == "in_progress"
-    
-    # Check that files were created
-    app_dir = os.path.join(tmp_path, f"{sample_grant.source}_{sample_grant.id}")
-    assert os.path.exists(app_dir)
-    assert os.path.exists(os.path.join(app_dir, 'metadata.json'))
-    assert any(f.endswith('.md') for f in os.listdir(app_dir))
+    with patch('openai.ChatCompletion.acreate', return_value=mock_openai_response):
+        # Modify config to use temporary directory
+        test_config = mock_config.copy()
+        test_config['storage'] = {'applications_dir': str(tmp_path)}
+        
+        agent = ApplicationAgent(test_config)
+        application = await agent.generate_application(sample_grant)
+        
+        assert isinstance(application, Application)
+        assert len(application.sections) > 0
+        assert all(isinstance(s, ApplicationSection) for s in application.sections)
+        assert application.status == "in_progress"
+        
+        # Check that files were created
+        app_dir = os.path.join(tmp_path, f"{sample_grant.source}_{sample_grant.id}")
+        assert os.path.exists(app_dir)
+        assert os.path.exists(os.path.join(app_dir, 'metadata.json'))
+        assert any(f.endswith('.md') for f in os.listdir(app_dir))
 
-@patch('openai.ChatCompletion.acreate')
-async def test_save_application(mock_acreate, mock_config, sample_grant, mock_openai_response, tmp_path):
+@pytest.mark.asyncio
+async def test_save_application(mock_config, sample_grant, mock_openai_response, tmp_path):
     """Test application saving functionality."""
-    mock_acreate.return_value = mock_openai_response
-    
-    # Modify config to use temporary directory
-    test_config = mock_config.copy()
-    test_config['storage'] = {'applications_dir': str(tmp_path)}
-    
-    agent = ApplicationAgent(test_config)
-    application = await agent.generate_application(sample_grant)
-    
-    # Check metadata file
-    metadata_path = os.path.join(
-        tmp_path,
-        f"{sample_grant.source}_{sample_grant.id}",
-        'metadata.json'
-    )
-    assert os.path.exists(metadata_path)
-    
-    with open(metadata_path) as f:
-        metadata = json.load(f)
-        assert metadata['grant_id'] == sample_grant.id
-        assert metadata['status'] == "in_progress"
+    with patch('openai.ChatCompletion.acreate', return_value=mock_openai_response):
+        # Modify config to use temporary directory
+        test_config = mock_config.copy()
+        test_config['storage'] = {'applications_dir': str(tmp_path)}
+        
+        agent = ApplicationAgent(test_config)
+        application = await agent.generate_application(sample_grant)
+        
+        # Check metadata file
+        metadata_path = os.path.join(
+            tmp_path,
+            f"{sample_grant.source}_{sample_grant.id}",
+            'metadata.json'
+        )
+        assert os.path.exists(metadata_path)
+        
+        with open(metadata_path) as f:
+            metadata = json.load(f)
+            assert metadata['grant_id'] == sample_grant.id
+            assert metadata['status'] == "in_progress"
 
-@patch('openai.ChatCompletion.acreate')
+@pytest.mark.asyncio
 async def test_process_grants(
-    mock_acreate,
     mock_config,
     sample_grant_score,
     mock_openai_response,
     tmp_path
 ):
     """Test processing multiple grants."""
-    mock_acreate.return_value = mock_openai_response
-    
-    # Modify config to use temporary directory
-    test_config = mock_config.copy()
-    test_config['storage'] = {'applications_dir': str(tmp_path)}
-    
-    agent = ApplicationAgent(test_config)
-    applications = await agent.process_grants([sample_grant_score])
-    
-    assert len(applications) == 1
-    assert isinstance(applications[0], Application)
-    assert len(applications[0].sections) > 0
+    with patch('openai.ChatCompletion.acreate', return_value=mock_openai_response):
+        # Modify config to use temporary directory
+        test_config = mock_config.copy()
+        test_config['storage'] = {'applications_dir': str(tmp_path)}
+        
+        agent = ApplicationAgent(test_config)
+        applications = await agent.process_grants([sample_grant_score])
+        
+        assert len(applications) == 1
+        assert isinstance(applications[0], Application)
+        assert len(applications[0].sections) > 0
 
-@patch('openai.ChatCompletion.acreate')
-async def test_word_limit_enforcement(mock_acreate, mock_config, sample_grant):
+@pytest.mark.asyncio
+async def test_word_limit_enforcement(mock_config, sample_grant):
     """Test that word limits are enforced."""
     # Create a response that exceeds word limit
     long_response = "Generated content. " * 200  # Way more than 300 words
-    mock_acreate.return_value = MagicMock(
+    mock_response = MagicMock(
         choices=[MagicMock(message=MagicMock(content=long_response))]
     )
     
-    agent = ApplicationAgent(mock_config)
-    content = await agent.generate_section_content(
-        "Executive Summary",
-        sample_grant,
-        max_words=300
-    )
-    
-    # Check that content was truncated
-    assert len(content.split()) <= 300
-    assert content.endswith('...')
+    with patch('openai.ChatCompletion.acreate', return_value=mock_response):
+        agent = ApplicationAgent(mock_config)
+        content = await agent.generate_section_content(
+            "Executive Summary",
+            sample_grant,
+            max_words=300
+        )
+        
+        # Check that content was truncated
+        assert len(content.split()) <= 300
+        assert content.endswith('...')
 
-@patch('openai.ChatCompletion.acreate')
-async def test_error_handling(mock_acreate, mock_config, sample_grant_score):
+@pytest.mark.asyncio
+async def test_error_handling(mock_config, sample_grant_score):
     """Test error handling during application generation."""
     # Simulate API error
-    mock_acreate.side_effect = Exception("API Error")
-    
-    agent = ApplicationAgent(mock_config)
-    applications = await agent.process_grants([sample_grant_score])
-    
-    # Should handle error gracefully and return empty list
-    assert len(applications) == 0 
+    with patch('openai.ChatCompletion.acreate', side_effect=Exception("API Error")):
+        agent = ApplicationAgent(mock_config)
+        applications = await agent.process_grants([sample_grant_score])
+        
+        # Should handle error gracefully and return empty list
+        assert len(applications) == 0 

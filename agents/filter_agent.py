@@ -90,16 +90,16 @@ class FilterAgent:
         medium_matches = len(grant_keywords & self.keywords['medium_priority'])
         low_matches = len(grant_keywords & self.keywords['low_priority'])
         
-        # Weight the matches (can be adjusted)
+        # Weight the matches with higher emphasis on high priority
         weighted_score = (
-            high_matches * 1.0 +
+            high_matches * 2.0 +  # Double weight for high priority
             medium_matches * 0.6 +
             low_matches * 0.3
         )
         
         # Normalize score (assuming max possible matches would be all keywords)
         max_possible = (
-            len(self.keywords['high_priority']) +
+            len(self.keywords['high_priority']) * 2.0 +  # Double weight for high priority
             len(self.keywords['medium_priority']) * 0.6 +
             len(self.keywords['low_priority']) * 0.3
         )
